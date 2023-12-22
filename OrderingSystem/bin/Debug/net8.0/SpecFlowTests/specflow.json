@@ -1,9 +1,0 @@
-{
-    "language": {
-      "feature": "en-US"
-    },
-    "unitTestProvider": {
-      "name": "NUnit"
-    }
-  }
-  
