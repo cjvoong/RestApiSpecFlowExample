@@ -1,11 +1,18 @@
+using System.Net.Http;
 using System;
+using Newtonsoft.Json;
 using TechTalk.SpecFlow;
+using NUnit.Framework;
+
 
 namespace SpecFlowTests.Steps
 {
     [Binding]
     public sealed class StepDefinitions
     {
+        private readonly HttpClient _client = new HttpClient();
+        private HttpResponseMessage _createOrderResponse;
+        private HttpResponseMessage _getOrderResponse;
         private readonly ScenarioContext _scenarioContext;
 
         public StepDefinitions(ScenarioContext scenarioContext)
@@ -20,17 +27,27 @@ namespace SpecFlowTests.Steps
         }
 
         [When("I create an order")]
-        public void WhenICreateAnOrder()
+        public async void WhenICreateAnOrder()
         {
-            Console.WriteLine("I create an order");
-
+            var orderRequestContent = new StringContent("[{\"ProductName\": \"Apple\", \"Quantity\": 2}, {\"ProductName\": \"Banana\", \"Quantity\": 3}]");
+            _createOrderResponse = await _client.PostAsync("http://localhost:5179/api/orders", orderRequestContent);
         }
 
         [Then("I should be able to retrieve the order details")]
-        public void ThenIShouldBeAbleToRetrieveTheOrderDetails()
+        public async void ThenIShouldBeAbleToRetrieveTheOrderDetails()
         {
-            Console.WriteLine("I should be able to retrieve the order details");
-        }
+            // Assuming the order creation was successful and you have the order ID
+            var orderId = "0";
 
+            // Adjust the URL based on your API implementation
+            _getOrderResponse = await _client.GetAsync($"http://localhost:5179/api/orders/{orderId}");
+
+            Assert.True(_getOrderResponse.IsSuccessStatusCode);
+
+            // You can add more assertions based on the response content if needed
+            var responseContent = await _getOrderResponse.Content.ReadAsStringAsync();
+            var order = JsonConvert.DeserializeObject<Order>(responseContent);
+            Assert.NotNull(order);
+            }
     }
 }
