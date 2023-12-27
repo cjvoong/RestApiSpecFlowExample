@@ -30,7 +30,8 @@ public class OrderController : ControllerBase
 
         Orders.Add(order);
         Console.WriteLine("Added order, there are " + Orders.Count + " orders.");
-        return Ok(JsonConvert.SerializeObject(order));
+        // Return CreatedAtAction with the action name ("GetOrder") and route values (orderId)
+        return CreatedAtAction(nameof(GetOrder), new { orderId = Orders.Count - 1 }, order);
     }
 
     [HttpGet("{orderId}")]
